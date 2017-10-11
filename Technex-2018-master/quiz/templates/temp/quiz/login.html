@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <title>Register</title>
+    <link rel = "stylesheet" type="text/css" href="{% static 'quiz/style.css' %}"/>
+{% endblock %}
+
+
+{% block body %}
+    <div class="container containerEdit">
+        <h1>Login<hr></h1>
+		<br>
+		{% if messages %}
+			{% for msg in messages %}
+				<div class="alert alert-danger fade in" style="color:red">
+					<!--a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a-->
+					{{msg.message}}
+				</div>
+			{% endfor %}
+		{% endif %}
+		
+		
+		<form method="POST" action="" role="form">
+			{%csrf_token%}
+			<div>
+				<input name="email" type="text">
+				<label>Email</label>
+			</div>
+			<div>
+				<input name="password" type="password">
+				<label>Password</label>
+			</div>
+			<div><button type="submit">SUBMIT</button></div>
+		</form>
+    </div>
+{% endblock %}

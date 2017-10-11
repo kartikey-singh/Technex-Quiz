@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <title>Home</title>
+    <link rel = "stylesheet" type="text/css" href="{% static 'quiz/style.css' %}"/>
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1>
+		<div class = "conatiner containerEdit" style="margin : auto;">
+            <h1>
+                Welcome to Technex-Quiz-Portal<br>
+            </h1>
+            <h4>
+               {% if user.is_authenticated  %}
+                   Logged in as : {{ user.email }}
+               {% else %}
+                   Login to Continue.
+               {% endif %}
+            </h4>
+       </div>
+    </h1>
+    <br>
+</div>
+{% endblock %}

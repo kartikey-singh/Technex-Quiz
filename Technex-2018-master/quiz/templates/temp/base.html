@@ -1,0 +1,72 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, inital-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+{% block head %}
+
+<title>Base</title>
+
+{% endblock %}
+
+    <style type="text/css">
+        .hover > li > a:hover{
+            background-color:#000000;
+        }
+        .btnHover:hover{
+            background-color:#000000;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container-fluid" style="padding: 0px;">
+    <!-- Static navbar -->
+
+    <nav class="navbar navbar-dark" style="background-color: #4f0000; border-radius: 0px; " >
+        <div class="container" style="background: #7f0000">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/" style="color: #ffffff;"><strong>Technex-Quiz-Portal</strong></a>
+
+                <button type="button" class="btnHover navbar-toggle" data-toggle="collapse" data-target="#mainNavBar">
+                    <span class="icon-bar hover" style="background: white"></span>
+                    <span class="icon-bar hover" style="background: white"></span>
+                    <span class="icon-bar hover" style="background: white"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id = "mainNavBar">
+            {% if user.is_authenticated %}
+                <ul class="nav navbar-nav navbar-right hover">
+                    <!--<li><a href="/portal/profile"><font color="#ffffff">Profile</font></a></li>-->
+                    <!--<li><a href="/portal/profile/edit"><font color="#ffffff">Edit Profile</font></a></li>-->
+                    <!--<li><a href="/quiz/change-password"><font color="#ffffff">Change Password</font></a></li>-->
+                    <li><a href="/logout"><font color="#ffffff">Logout</font></a></li>
+                </ul>
+            {% else %}
+                <ul class="nav navbar-nav navbar-right hover">
+                    <li><a href="/login"><font color="#ffffff">Login</font></a></li>
+                    <li><a href="/register"><font color="#ffffff">Register</font></a></li>
+                </ul>
+            {% endif %}
+            </div>
+        </div>
+    </nav>
+</div>
+
+<link rel="stylesheet" href="{% static 'quiz/bg.css' %}" type="text/css" />
+
+<br>
+
+{% block body %}
+{% endblock %}
+
+
+</body>
+</html>

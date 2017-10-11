@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}<div class="box">
+    <div class="box">
+        <h1>Login<hr></h1>
+		<br>
+		{% if messages %}
+			{% for msg in messages %}
+				<div class="alert alert-danger fade in" style="color:red">
+					<!--a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a-->
+					{{msg.message}}
+				</div>
+			{% endfor %}
+		{% endif %}
+		
+		
+		<form method="POST" action="" role="form">
+			{%csrf_token%}
+			<div>
+				<label>Email</label>
+				<input name="email" type="text">
+			</div>
+			<div>
+				<label>Password</label>
+				<input name="password" type="password">
+			</div>
+			<div><button type="submit"  class="btn btn-primary">SUBMIT</button></div>
+		</form>
+    </div>
+{% endblock %}

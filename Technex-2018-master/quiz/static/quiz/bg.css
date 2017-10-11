@@ -1,0 +1,10 @@
+body {
+    background-image: url("https://wallpaperscraft.com/image/yellow_red_spots_background_abstract_65559_1920x1080.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+	background-size : cover;
+    display:block;
+    padding:0px !important;
+    margin:0px;
+}

@@ -1,0 +1,122 @@
+.containerEdit {
+    max-width: 760px;
+    width : 90%;
+    /*
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 25px;
+    */
+    padding: 25px;
+    color: black;
+    text-align: center;
+
+    color:white;
+    font-size: 15px;
+
+    /*background-color: rgba(250, 200, 180, 0.85);*/
+    background-color: rgba(50, 0, 0, 0.2);
+}
+
+input, textarea, dropbox, button,select,option{
+    color : black;
+    border: hidden;
+    float: right;
+    width : 50%;
+}
+
+.btn{
+	border-radius : 0px;
+	width : 20%;
+	height : 40px;
+}
+
+.portalLinks{
+	float : left;
+    color : white;
+	font-size : 24px;
+	width : 19%;
+	height : 150px;
+	margin : 5px;
+	padding : 25px;
+	padding : auto;
+    text-align: center;
+
+
+    background-color: rgba(50,0,0, 0.75);
+    -webkit-transition : background-color 1s;
+}
+
+.portalLinks:hover{
+    background-color: rgba(50,0,0, 1);
+}
+
+.facebookPortal{
+    background-color: rgba(0, 162, 232, 1);
+    -webkit-transition : background-color 1s;
+}
+.facebookPortal:hover{
+    background-color: rgba(0, 0, 160, 1);
+}
+.iitPortal{
+    background-color: rgba(255, 134, 13, 1);
+    -webkit-transition : background-color 1s;
+}
+.iitPortal:hover{
+    background-color: rgba(179, 89, 0, 1);
+}
+.freshersPortal{
+    background-color: rgba(36, 242, 13, 1);
+    -webkit-transition : background-color 1s;
+}
+.freshersPortal:hover{
+    background-color: rgba(21, 141, 7, 1);
+}
+.sntcPortal{
+    background-color: rgba(250, 50, 50, 1);
+    -webkit-transition : background-color 1s;
+}
+.sntcPortal:hover{
+    background-color: rgba(191, 0, 0, 1);
+}
+.culturalPortal{
+    background-color: rgba(213, 89, 230, 1);
+    -webkit-transition : background-color 1s;
+}
+.culturalPortal:hover{
+    background-color: rgba(143, 24, 160, 1);
+}
+
+.portalLinks > a{
+    color: white;
+    text-decoration: none;
+}
+.portalLinks > a:hover, a:visited, a:link, a:active{
+    color: white;
+}
+
+.inputRight input, textarea{
+    float: none;
+}
+
+hr{
+    border-color: white;
+}
+
+h1 {
+    text-align: center;
+}
+
+.welcome{
+    font-size: 50px;
+}
+
+.mainDiv{
+    height : 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid black;
+}
+
+.formLeftAlign{
+    text-align : left;
+    padding-left : 30px;
+}

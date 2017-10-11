@@ -1,0 +1,68 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="all" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.0/css/foundation.min.css" rel="stylesheet" media="all" />
+  <title>{% block title %}{% endblock %}</title> 
+  <style type="text/css">
+     body {
+  background-color: #64B5F6; 
+  margin: auto;
+  width: 940px;
+   
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#hi{
+  font-size:18px;
+  
+}
+  #social {
+  padding: 10px;
+  margin: 12px;
+}
+#email {
+  width: 450px;
+}
+.box {
+  border-radius: 8px solid black;
+  position: relative;
+  margin: 8% auto auto auto;
+  width: 500px;
+  padding: 40px 50px;
+  display: table;
+  background-color: #fff;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+}
+.box:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse" id="hi">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/home">Quiz Portal</a>
+    </div>
+      <ul class="nav navbar-nav navbar-right">
+       <li><a href="/index">Index</a></li>
+        <li><a href="/about">About</a></li>
+      <li><a href="/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+    </ul>
+  </div>
+</nav>
+{% block content %}
+<div class="box">
+<div class="text-center">
+    <h1 class="fa fa-flask fa-3x"> Quiz Portal</h1>
+  <h3 class="text-center">By : Kartikey Singh</h3>
+</div></div>
+
+{% endblock %} 
+</body>
+</html> 
