@@ -16,72 +16,166 @@ from .models import *
 import datetime
 from django.utils import timezone
 
+#Status Codes
+NOTHING_TO_POST = 0
+SUCCESS = 1
+
+USER_NOT_FOUND = 2
+NO_ACTIVE_QUIZ = 3
+
+QUIZ_NOT_STARTED = 4
+QUIZ_HAS_ENDED = 5
+
+RESPONSE_ALREADY_SUBMITTED = 6
+RESPONSE_NOT_FOUND = 7
+QUESTION_NOT_ATTEMPTED = 8
+INVALID_QUESTION = 9
+INVALID_OPTIONS = 10
+ERROR_ADDING_DATA = 11
+TIMES_UP = 12
+
+#Status Text
+status_text = {
+    NOTHING_TO_POST : "Nothing to post",
+    SUCCESS : "Success",
+
+    USER_NOT_FOUND : "User not found",
+    NO_ACTIVE_QUIZ : "No active quiz found",
+
+    QUIZ_NOT_STARTED : "Quiz has not started",
+    QUIZ_HAS_ENDED : "Quiz has ended",
+
+    RESPONSE_ALREADY_SUBMITTED : "Quiz Response already submitted by the user",
+    RESPONSE_NOT_FOUND : "Quiz Response of the user not found",
+    QUESTION_NOT_ATTEMPTED : "Question not attempted",
+    INVALID_QUESTION : "Invalid Question ID",
+    INVALID_OPTIONS : "Invalid Option ID(s)",
+    ERROR_ADDING_DATA : "Error adding data to response",
+    TIMES_UP : "Time's Up for the user",
+}
+
 
 @csrf_exempt
 def StartTest(request):
-    response_data = {'status' : 0}
+    response_data = {}
     data = request.POST
     email = data.get("email")
-    # email = "navpun31@gmail.com"
+
     try:
         user = User.objects.get(email=email)
-        quiz = Quiz.objects.get(activeStatus = True)
-                        
-        quizId = quiz.quizId
-        now = timezone.now()
         try:
-            quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
+            quiz = Quiz.objects.get(activeStatus = True)
         except:
-            quizResponse = QuizResponse.objects.create(user=user, quiz=quiz, timeOfAttempt=now)
-            quizResponse.save()
+            response_data["status"] = NO_ACTIVE_QUIZ
+            response_data["status_text"] = status_text[NO_ACTIVE_QUIZ]
+            return JsonResponse(response_data)
+        
+        # Checks if the start time lies between the quiz timings
+        now = timezone.now()
+        quizStartTime = quiz.startTime
+        if now < quizStartTime:
+            response_data["status"] = QUIZ_NOT_STARTED
+            response_data["status_text"] = status_text[QUIZ_NOT_STARTED]
+            return JsonResponse(response_data)
+
+        quizEndTime = quiz.endTime
+        if now > quizEndTime:
+            response_data["status"] = QUIZ_HAS_ENDED
+            response_data["status_text"] = status_text[QUIZ_HAS_ENDED]
+            return JsonResponse(response_data)
 
         try:
-            response_data = getQuizData(quizId, email)
-            response_data["s_time"] = quiz.startTime
-            response_data["e_time"] = quiz.endTime
-            response_data["u_time"] = quizRespone.timeOfAttempt
-            if response_data is not None:
-                response_data["status"] = 1 # Success
-            else:
-                response_data["status"] = 3 # Error Adding Data
+            quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
+
+            if not quizResponse.activeStatus:
+                response_data["status"] = RESPONSE_ALREADY_SUBMITTED
+                response_data["status_text"] = status_text[RESPONSE_ALREADY_SUBMITTED]
+                return JsonResponse(response_data)
         except:
-            response_data["status"] = 2 # Error Adding Data
+            quizResponse = QuizResponse(user=user, quiz=quiz, timeOfAttempt=now)
+
+        try:
+            # Adding the questions and their options to the response
+            response_data = getQuizData(quiz.quizId, email)
+            
+            if response_data is None:
+                response_data["status"] = ERROR_ADDING_DATA
+                response_data["status_text"] = status_text[ERROR_ADDING_DATA]
+
+
+            # About the quiz : Adding quiz information
+            response_data["name"] = str(quiz.name)
+            response_data["description"] = str(quiz.description)
+            
+            timeFormat = '%d/%m/%Y %H:%M:%S'
+            response_data["duration"] = str(quiz.duration)
+            response_data["s_time"] = quiz.startTime.strftime(timeFormat)
+            response_data["e_time"] = quiz.endTime.strftime(timeFormat)
+            response_data["u_time"] = quizResponse.timeOfAttempt.strftime(timeFormat)
+
+
+            quizResponse.save() # Save the quizResponse when everything works fine
+            response_data["status"] = SUCCESS
+            response_data["status_text"] = status_text[SUCCESS]
+        except:
+            response_data["status"] = ERROR_ADDING_DATA
+            response_data["status_text"] = status_text[ERROR_ADDING_DATA]
     except:
-        response_data["status"] = 0 # No User/Active Quiz Found
+        response_data["status"] = USER_NOT_FOUND
+        response_data["status_text"] = status_text[USER_NOT_FOUND]
         return JsonResponse(response_data)
     return JsonResponse(response_data)
 
+
 @csrf_exempt
 def SubmitQuestion(request):
-    response = {}
+    response_data = {}
     if request.method == 'POST':
         data = request.POST
         email = data.get("email")
         questionId = data.get("questionId")
-        question = Questions.objects.get(questionId=questionId)
-        
         optionIds = data.get("optionIds")
-        options = Options.objects.filter(optionId__in = optionIds)
 
-        try:
-            quiz = Quiz.objects.get(activeStatus = True)  
-        except:
-            response_data['status'] = 0 # No Active Quiz Found / Quiz has ended
-            return JsonResponse(response_data)
-
+        #Getting the User
         try:
             user = User.objects.get(email=email)
         except:
-            response_data['status'] = 1 # No User Found
+            response_data['status'] = USER_NOT_FOUND
+            response_data['status_text'] = status_text[USER_NOT_FOUND]
             return JsonResponse(response_data)
 
-        now = timezone.now()
+        #Getting the Quiz
         try:
-            quizResponse = QuizResponse.objects.get(user=user)
+            quiz = Quiz.objects.get(activeStatus = True)  
         except:
-            response_data['status'] = 2 # Quiz Response Not Found
+            response_data['status'] = NO_ACTIVE_QUIZ
+            response_data['status_text'] = status_text[NO_ACTIVE_QUIZ]
             return JsonResponse(response_data)
 
+        #Checking if the quizResponse of the user is valid or not
+        try:
+            quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
+            if not quizResponse.activeStatus:
+                response_data["status"] = RESPONSE_ALREADY_SUBMITTED
+                response_data['status_text'] = status_text[RESPONSE_ALREADY_SUBMITTED]
+                return JsonResponse(response_data)
+        except:
+            response_data['status'] = RESPONSE_NOT_FOUND
+            response_data['status_text'] = status_text[RESPONSE_NOT_FOUND]
+            return JsonResponse(response_data)
+
+        #Getting the question and the selected options
+        try:
+            question = Questions.objects.get(questionId=questionId)
+            optionIds = optionIds.split(",")
+            options = Options.objects.filter(optionId__in = optionIds)
+        except:
+            response_data['status'] = INVALID_QUESTION
+            response_data['status_text'] = status_text[INVALID_QUESTION]
+            return JsonResponse(response_data)
+        
+        now = timezone.now()
+        #Submitting the Response if it is valid (i.e. answered within the timelimit)
         try:
             questionResponse = quizResponse.questionresponse_set.get(question=question, quizResponse=quizResponse)
         except:
@@ -89,77 +183,163 @@ def SubmitQuestion(request):
         
         questionResponse.responseTime = now
         if questionResponse.validForSubmission():
+            questionResponse.save() # Required : To save the newly created questionResponse
             questionResponse.option.clear()
             for op in options:
                 questionResponse.option.add(op)
 
             questionResponse.save()
-            response_data['status'] = 3 # Success
+            response_data['status'] = SUCCESS
+            response_data['status_text'] = status_text[SUCCESS]
             
         else:
-            response_data['status'] = 4 # Quiz has ended
+            quizResponse.activeStatus = False
+            quizResponse.save()
+            response_data['status'] = TIMES_UP
+            response_data['status_text'] = status_text[TIMES_UP]
 
-        return JsonResponse(response_data)
+    else :
+        response_data['status'] = NOTHING_TO_POST
+        response_data['status_text'] = status_text[NOTHING_TO_POST]
+    return JsonResponse(response_data)
 
 
 @csrf_exempt
 def ResetQuestion(request):
-    response = {}
+    response_data = {}
     if request.method == 'POST':
         data = request.POST
         email = data.get("email")
         questionId = data.get("questionId")
-
-        try:
-            quiz = Quiz.objects.get(activeStatus = True)  
-        except:
-            response_data['status'] = 0 # No Active Quiz Found / Quiz has ended
-            return JsonResponse(response_data)
-
+        
+        #Getting the User
         try:
             user = User.objects.get(email=email)
         except:
-            response_data['status'] = 1 # No User Found
+            response_data['status'] = USER_NOT_FOUND
+            response_data['status_text'] = status_text[USER_NOT_FOUND]
             return JsonResponse(response_data)
 
+        #Getting the Quiz
         try:
-            quizResponse = QuizResponse.objects.filter(user=user)
+            quiz = Quiz.objects.get(activeStatus = True)  
         except:
-            response_data['status'] = 2 # Quiz Response Not Found
+            response_data['status'] = NO_ACTIVE_QUIZ
+            response_data['status_text'] = status_text[NO_ACTIVE_QUIZ]
+            return JsonResponse(response_data)
+        
+        #Checking if the quizResponse of the user is valid or not
+        try:
+            quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
+            if not quizResponse.activeStatus:
+                response_data["status"] = RESPONSE_ALREADY_SUBMITTED
+                response_data["status_text"] = status_text[RESPONSE_ALREADY_SUBMITTED]
+                return JsonResponse(response_data)
+        except:
+            response_data['status'] = RESPONSE_NOT_FOUND
+            response_data['status_text'] = status_text[RESPONSE_NOT_FOUND]
             return JsonResponse(response_data)
 
+        #Getting the question to reset
         try:
-            questionResponse = quizResponse.questionresponse_set.filter(question=question, quizResponse=quizResponse)
-            questionResponse.delete()
-            response_data['status'] = 3 # Success
+            question = Questions.objects.get(questionId=questionId)
         except:
-            response_data['status'] = 4 # Question Not Attempted
+            response_data['status'] = INVALID_QUESTION
+            response_data['status_text'] = status_text[INVALID_QUESTION]
+            return JsonResponse(response_data)
 
-        return JsonResponse(response_data)
+        now = timezone.now()
+        #Resetting the Response if it is valid (i.e. answered within the time limit)
+        try:
+            questionResponse = quizResponse.questionresponse_set.get(question=question, quizResponse=quizResponse)
+
+            prevTime = questionResponse.responseTime
+            
+            questionResponse.responseTime = now
+            questionResponse.save()
+            if questionResponse.validForSubmission():
+                questionResponse.delete()
+                response_data['status'] = SUCCESS
+                response_data['status_text'] = status_text[SUCCESS]
+            else:
+                questionResponse.responseTime = prevTime
+                questionResponse.save()
+                quizResponse.activeStatus = False
+                quizResponse.save()
+                response_data['status'] = TIMES_UP
+                response_data['status_text'] = status_text[TIMES_UP]
+        except:
+            response_data['status'] = QUESTION_NOT_ATTEMPTED
+            response_data['status_text'] = status_text[QUESTION_NOT_ATTEMPTED]
+    else:
+        response_data['status'] = NOTHING_TO_POST
+        response_data['status_text'] = status_text[NOTHING_TO_POST]
+    return JsonResponse(response_data)
+
+
+@csrf_exempt
+def FinalSubmit(request):
+    response_data = {}
+    if request.method == 'POST':
+        data = request.POST
+        email = data.get("email")
+        
+        #Getting the User
+        try:
+            user = User.objects.get(email=email)
+        except:
+            response_data['status'] = USER_NOT_FOUND
+            response_data['status_text'] = status_text[USER_NOT_FOUND]
+            return JsonResponse(response_data)
+
+        #Getting the Quiz
+        try:
+            quiz = Quiz.objects.get(activeStatus = True)  
+        except:
+            response_data['status'] = NO_ACTIVE_QUIZ
+            response_data['status_text'] = status_text[NO_ACTIVE_QUIZ]
+            return JsonResponse(response_data)
+        
+        #Checking if the quizResponse of the user is valid or not
+        try:
+            quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
+            quizResponse.activeStatus = False
+            quizResponse.save()
+            response_data["status"] = SUCCESS
+            response_data["status_text"] = status_text[SUCCESS]
+            return JsonResponse(response_data)
+        except:
+            response_data['status'] = RESPONSE_NOT_FOUND
+            response_data['status_text'] = status_text[RESPONSE_NOT_FOUND]
+            return JsonResponse(response_data)
+
+    else:
+        response_data['status'] = NOTHING_TO_POST
+        response_data['status_text'] = status_text[NOTHING_TO_POST]
+    return JsonResponse(response_data)
 
 
 #Gives the Questions/Options for the quiz
 def getQuizData(quizId, email):
-    if 1:#try:
-        response = {}
-
+    response = {}
+    try:
         quiz = Quiz.objects.get(quizId=quizId)
         user = User.objects.get(email=email)
-        quizResponse = QuizResponse.objects.get(user=user, quiz = quiz)
+        # quizResponse = QuizResponse.objects.get(user=user, quiz = quiz)
 
         questionIdsSC = Questions.objects.filter(quiz=quiz, questionType='sc').values_list('questionId', flat=True)
         questionIdsMC = Questions.objects.filter(quiz=quiz, questionType='mc').values_list('questionId', flat=True)
 
-##        questionsSC = random.sample(questionIdsSC, 10)
-##        questionsMC = random.sample(questionIdsMC, 10)
+       # questionsSC = random.sample(questionIdsSC, 10)
+       # questionsMC = random.sample(questionIdsMC, 10)
 
         questionsSC = Questions.objects.filter(questionId__in = questionIdsSC)
         questionsMC = Questions.objects.filter(questionId__in = questionIdsMC)
 
-##        for question in questionsSC:
-##            quizResponse.questions.add(question)
-##        for question in questionsMC:
-##            quizResponse.questions.add(question)
+       # for question in questionsSC:
+       #     quizResponse.questions.add(question)
+       # for question in questionsMC:
+       #     quizResponse.questions.add(question)
 
         questionArraySC = []
         for question in questionsSC:
@@ -202,9 +382,11 @@ def getQuizData(quizId, email):
         response['multiple'] = questionArrayMC
         total = len(questionArraySC) + len(questionArrayMC)
         response['ids'] = total
-
+        response['singleIds'] = len(questionArraySC)
+        response['multipleIds'] = len(questionArrayMC)
+        
         return response
-    else: #except:
+    except:
         return None
 
 #REGISTER / LOGIN
@@ -556,13 +738,61 @@ def changeBase(innitvar, basevar, convertvar):
 def editUsernames():
     users = User.objects.all()
     for user in users:
-        email = user.email
-        username = getUsername(email)
-        user.username = username
-        user.save()
+        if not user.is_superuser:
+            email = user.email
+            username = getUsername(email)
+            user.username = username
+            user.save()
 
 def activateUsers():
     users = User.objects.all()
     for user in users:
         user.is_active = True
         user.save()
+
+
+def createSuperuser(username, password):
+    try:
+        user = User.objects.get(username = username)
+        print("Superuser already exists.")
+    except:
+        user = User.objects.create(username = username)
+        user.set_password(password)
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+        print("New superuser created.")
+
+def createUser(email, password):
+    username = getUsername(email)
+    if username == "ERROR":
+        print("Enter Valid Username")
+        return
+    try:
+        user = User.objects.get(username=username)
+        print("User already exists.")
+    except:
+        user = User.objects.create(username = username, email=email)
+        user.set_password(password)
+        user.save()
+        print("New user created.")
+
+
+def activateQuiz(quizId):
+    try:
+        quiz = Quiz.objects.get(quizId=quizId)
+
+        deactivateQuizzes()
+        quiz.activeStatus = True
+        quiz.save()
+        print("Quiz ID " + str(quizId) + " activated.")
+    except:
+        print("Quiz Does not Exist.")
+
+def deactivateQuizzes():
+    quizzes = Quiz.objects.all()
+    for quiz in quizzes:
+        quiz.activeStatus = False
+        quiz.save()
+    print("Quizzes deactivated.")
