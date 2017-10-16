@@ -29,7 +29,7 @@ class Quiz(models.Model):
 	activeStatus = models.BooleanField(default=False)
      
 	def __str__(self):
-		return 'QUIZ : %s' %(self.name)
+		return 'QUIZ : %s -- %s' %(self.quizId, self.name)
 
 
 class Questions(models.Model):
@@ -57,6 +57,7 @@ class QuizResponse(models.Model):
 	quiz = models.ForeignKey(Quiz,null=True)
 	user = models.ForeignKey(User,null=True)
 	timeOfAttempt = models.DateTimeField(null = True)
+	activeStatus = models.BooleanField(default=True)
 	#questions = models.ManyToManyField(Questions,null = True)
 
 	def __str__(self):
