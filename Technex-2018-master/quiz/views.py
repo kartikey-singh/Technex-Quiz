@@ -112,6 +112,7 @@ def StartTest(request):
             response_data["s_time"] = quiz.startTime.strftime(timeFormat)
             response_data["e_time"] = quiz.endTime.strftime(timeFormat)
             response_data["u_time"] = quizResponse.timeOfAttempt.strftime(timeFormat)
+            response_data["curr_time"] = now.strftime(timeFormat)
 
 
             quizResponse.save() # Save the quizResponse when everything works fine
@@ -395,13 +396,14 @@ def HomeView(request):
         template_name = 'base.html'
         return render(request, template_name, {'user' : request.user})
 
+
 @login_required(login_url = "/login")
 def DashboardView(request):
     if request.method =='GET':
         template_name = 'index.html'
         return render(request, template_name, {'user_id' : request.user.email})
 
-@login_required(login_url = "/login")
+
 def AboutView(request):
     if request.method =='GET':
         template_name = 'registration/about.html'
