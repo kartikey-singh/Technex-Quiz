@@ -24,25 +24,27 @@ function timecalc(){
 
   var timeLeft =  ((eDate-uDate)/1000); // in Seconds
   var timeElapsed = ((curr - uDate)/1000); // in Seconds
-  console.log(timeLeft);
 
+  
+  if( (duration*60) < timeLeft ){
+     timeLeft = duration*60;
+  }
   if(timeElapsed > 0){
     timeLeft = timeLeft - timeElapsed;
   }
-
-  console.log(timeElapsed);
-  console.log(timeLeft);
 
   if(timeLeft < 0){
     timeLeft = 0;
     bool = false;
   }
-  else if( (duration*60) < timeLeft ){
-     timeLeft = duration*60;
-  }
+  
 
   var minutesLeft = Math.trunc(timeLeft / 60, 0);
   var secondsLeft = timeLeft % 60;
+
+  console.log(minutesLeft);
+  console.log(secondsLeft);
+
   sl = parseInt(minutesLeft);
   sec = parseInt(secondsLeft);
   return bool;
