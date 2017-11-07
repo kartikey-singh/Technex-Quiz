@@ -74,13 +74,13 @@ class QuestionResponse(models.Model):
 		return '%s - %s - OPTIONS : %s' %(self.quizResponse, self.question, " - ".join([op.optionQuote for op in self.option.all()]))
 	
 	def validForSubmission(self):
-		minutes = self.quiz_response.quiz.duration
+		minutes = self.quizResponse.quiz.duration
 		quizEndTime = self.quizResponse.quiz.endTime
 
 		now = self.responseTime
 		#now = timezone.now()
 		
-		timediff = now - self.quiz_response.timeOfAttempt
+		timediff = now - self.quizResponse.timeOfAttempt
 		if timediff.total_seconds() > minutes*60 or now > quizEndTime:
 			return False
 		else:
