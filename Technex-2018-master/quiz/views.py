@@ -87,7 +87,13 @@ def StartTest(request):
         try:
             quizResponse = QuizResponse.objects.get(user=user, quiz=quiz)
 
-            if not quizResponse.activeStatus:
+            minutes = quizResponse.quiz.duration
+            quizEndTime = quizResponse.quiz.endTime
+            timediff = now - quizResponse.timeOfAttempt
+
+            if (not quizResponse.activeStatus) or (timediff.total_seconds() > minutes*60):
+                quizResponse.activeStatus = False
+                quizResponse.save()
                 response_data["status"] = RESPONSE_ALREADY_SUBMITTED
                 response_data["status_text"] = status_text[RESPONSE_ALREADY_SUBMITTED]
                 return JsonResponse(response_data)

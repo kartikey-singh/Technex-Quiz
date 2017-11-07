@@ -123,6 +123,7 @@ $("#start").click(function() {
     $("#help").hide();
     $("#errorText").text("Oops! No quiz found for you ");
     $("#thanks").show();
+    console.log(obj.status + " " + obj.status_text);
     console.log("error");
   } 
 });
