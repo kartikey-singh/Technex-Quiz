@@ -39,9 +39,12 @@
     font-size: 18px;
   }
 }
+
 button{
-  margin-left:5px;
+  padding-top: 18px;
+  margin-left: 10px;
 }
+
 .row{
   padding-top:50px;
 }
