@@ -20,7 +20,7 @@
         <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;</span>
         <ul id="nav-mobile" class="right">
           <li><a href="#" id="yo" class="right"></a></li>
-          <li><button class="btn" id="final">submit</button></li>
+          <li><button class="btn hide-on-small-only" id="final">submit</button></li>
           <li id='user'>{{user_id}}</li>
         </ul>
       </div>
@@ -30,6 +30,10 @@
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     <a class="waves-effect waves-light modal-trigger" href="#modal1">FAQ</a>
   </div>
+  <div class="center-align">
+    <button class="waves-effect waves-light btn hide-on-med-and-up" id="final2">submit</button>
+  </div>
+  
   <div class="container" id="help">
     <div class="row">
       <div class="col s12 m12">
@@ -51,7 +55,7 @@
   <div id="modal1" class="modal">
     <div class="modal-content">
       <h4>FAQ</h4>
-      <p>A bunch of helpful answers.</p>
+      <p>This is a multiple choice options quiz with one or multiple correct options.</p>
     </div>
   </div>
   <div class="container" id="thanks">
@@ -61,7 +65,7 @@
           <div class="card-content  center-align">
             <span class="card-title">Thank You</span>
             <form action="#">
-              <p id="errorText">Please close this webpage after submitting your solutions.</p>
+              <p id="errorText">Please close this webpage after submitting your responses.</p>
             </form>
           </div>
         </div>

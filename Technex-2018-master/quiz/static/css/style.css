@@ -40,11 +40,16 @@
   }
 }
 
-button{
-  padding-top: 18px;
-  margin-left: 10px;
-}
-
 .row{
   padding-top:50px;
 }
+
+button{
+  margin-top:5px;
+  margin-left:5px;
+  margin-right:10px;
+}
+#final2{
+  margin:0 auto;
+}
+

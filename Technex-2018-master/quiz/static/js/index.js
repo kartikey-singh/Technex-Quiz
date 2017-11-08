@@ -1,7 +1,7 @@
 var sl=0,sec=0,click=0,my,user_email = document.getElementById("user").innerHTML,first = {email:user_email},obj;
-function ajax_get(first){
+function ajax_get(first,URL){
   $.ajax({
-    url: "starttest/",        // the endpoint
+    url: URL,                 // the endpoint
     type: "POST",             // http method
     data: first,              // data sent with the post request
     success: function(json) { // handle a successful response
@@ -12,7 +12,7 @@ function ajax_get(first){
   });
 }
 
-ajax_get(first);
+ajax_get(first,"starttest/");
 
 function timecalc(){
   var bool = true;
@@ -21,36 +21,27 @@ function timecalc(){
   var eDate = new Date(obj.e_time);
   var uDate = new Date(obj.u_time);
   var curr = new Date(obj.curr_time);
-
-  var timeLeft =  ((eDate-uDate)/1000); // in Seconds
+  var timeLeft =  ((eDate-uDate)/1000);    // in Seconds
   var timeElapsed = ((curr - uDate)/1000); // in Seconds
 
-  
   if( (duration*60) < timeLeft ){
      timeLeft = duration*60;
   }
   if(timeElapsed > 0){
     timeLeft = timeLeft - timeElapsed;
   }
-
   if(timeLeft < 0){
     timeLeft = 0;
     bool = false;
   }
-  
-
   var minutesLeft = Math.trunc(timeLeft / 60, 0);
   var secondsLeft = timeLeft % 60;
-
-  console.log(minutesLeft);
-  console.log(secondsLeft);
-
   sl = parseInt(minutesLeft);
   sec = parseInt(secondsLeft);
   return bool;
 }
 
-$("#questions,#thanks,#final").hide();
+$("#questions,#thanks,#final,#final2").hide();
 
 $(".modal-trigger").leanModal();
 
@@ -76,6 +67,7 @@ function menu() {
       );
   }
 }
+
 function scrol(point) {
   $("html, body").animate(
   {
@@ -86,20 +78,17 @@ function scrol(point) {
 }
 
 function myTimer() {
-  if (sec === 59 && sl !== 0){
-    sl--;
-    $("#yo").text(sl + "m : " + sec + "s");
-    sec--;
-  } else if (sec === 0 && sl !== 0) {
-    if (sl === 1) {
+ if (sec === 0 && sl !== 0) {
+    if (sl === 5) {
       Materialize.toast("Only 5 minutes remaining !!", 4000);
     }
-    sl--;
     sec = 59;
+    sl--;
     $("#yo").text(sl + "m : " + sec + "s");
   } else if (sec === 0 && sl === 0) {
     $("#questions").hide();
     $("#thanks").show();
+    ajax_get(first,"finalsubmit/");
     clearInterval(my);
   } else {
     sec--;
@@ -112,7 +101,7 @@ $("#start").click(function() {
   var bool = timecalc();
   if(obj.status === 1 && bool === true){
     $("#help").hide();
-    $("#questions,#final").show();
+    $("#questions,#final,#final2").show();
     my = setInterval(function() {
       myTimer();
     }, 1000);
@@ -123,21 +112,21 @@ $("#start").click(function() {
     $("#help").hide();
     $("#errorText").text("Oops! No quiz found for you ");
     $("#thanks").show();
-    console.log(obj.status + " " + obj.status_text);
     console.log("error");
   } 
 });
 
-$("#final").click(function() {
+$("#final,#final2").click(function() {
   if (click === 0) {
     click++;
     alert("Are you sure that you want to submit the quiz answers !!!");
-    $("#final").text("Final Submission");
+    $("#final,#final2").text("Final Submission");
   } else {
     $(".sidenav").html("<a href='javascript:void(0)' class='closebtn' onclick='closeNav()'>&times;</a><a>Thank You</a>");
     clearInterval(my);
     $("#questions").hide();
     $("#thanks").show();
+    ajax_get(first,"finalsubmit/");
   }
 });
 
